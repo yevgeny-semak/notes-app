@@ -9,15 +9,12 @@ class NoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'updated_at',)
     list_display_links = ('title',)
     search_fields = ('title',)
-    ordering = ('title',)
-
 
 class UserAdmin(admin.ModelAdmin):
     model = User
     list_display = ('id', 'username', 'email')
     list_display_links = ('username',)
     search_fields = ('username',)
-    ordering = ('username', 'created_at',)
 
 
 admin.site.register(Note, NoteAdmin)
