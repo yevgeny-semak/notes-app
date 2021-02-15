@@ -7,12 +7,10 @@ from notes.serializers import NoteSerializer
 
 
 class NotesView(APIView):
-
     def get(self, request):
         notes = Note.objects.all()
         serializer = NoteSerializer(notes, many=True)
-        notes = serializer.data
-        return Response({'notes': notes, })
+        return Response(serializer.data)
 
     def post(self, request):
         data = {
@@ -28,4 +26,11 @@ class NotesView(APIView):
 
 
 class NotesItemView(APIView):
-    pass
+    def get(self, request, pk):
+        try:
+            note = Note.objects.get(pk=pk)
+        except Note.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = NoteSerializer(note)
+        return Response(serializer.data)

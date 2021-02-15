@@ -9,7 +9,6 @@ from notes.serializers import NoteSerializer
 
 
 class GetAllNotesTest(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create(username='test', password='1234', email='test@localhost')
         Note.objects.create(title='test1', content='testcontent1', user=self.user)
@@ -20,12 +19,11 @@ class GetAllNotesTest(APITestCase):
         response = self.client.get(reverse('notes'))
         notes = Note.objects.all()
         serializer = NoteSerializer(notes, many=True)
-        self.assertEqual(response.data.pop('notes'), serializer.data)
+        self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CreateNewNoteTest(APITestCase):
-
     def setUp(self):
         self.user = User.objects.create(username='test', password='1234', email='test@localhost')
         self.valid_payload = {
@@ -54,3 +52,25 @@ class CreateNewNoteTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class GetSingleNoteTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.note1 = Note.objects.create(title='test1', content='testcontent1', user=self.user)
+        self.note2 = Note.objects.create(title='test2', content='testcontent2', user=self.user)
+
+    def test_get_valid_note(self):
+        response = self.client.get(
+            reverse('notes_item', kwargs={'pk': self.note1.pk})
+        )
+        note = Note.objects.get(pk=self.note1.pk)
+        serializer = NoteSerializer(note)
+        self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_invalid_note(self):
+        response = self.client.get(
+            reverse('notes_item', kwargs={'pk': 10})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
