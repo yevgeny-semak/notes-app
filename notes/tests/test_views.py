@@ -57,14 +57,13 @@ class CreateNewNoteTest(APITestCase):
 class GetSingleNoteTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create(username='test', password='1234', email='test@localhost')
-        self.note1 = Note.objects.create(title='test1', content='testcontent1', user=self.user)
-        self.note2 = Note.objects.create(title='test2', content='testcontent2', user=self.user)
+        self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
 
     def test_get_valid_note(self):
         response = self.client.get(
-            reverse('notes_item', kwargs={'pk': self.note1.pk})
+            reverse('notes_item', kwargs={'pk': self.note.pk})
         )
-        note = Note.objects.get(pk=self.note1.pk)
+        note = Note.objects.get(pk=self.note.pk)
         serializer = NoteSerializer(note)
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
