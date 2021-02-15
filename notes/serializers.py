@@ -4,7 +4,7 @@ from notes.models import Note, User
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
 
     class Meta:
         model = Note
