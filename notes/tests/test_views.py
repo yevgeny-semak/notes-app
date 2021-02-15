@@ -37,7 +37,7 @@ class CreateNewNoteTest(APITestCase):
             'user': self.user.id
         }
 
-    def test_create_valid_note(self):
+    def test_create_note_with_valid_payload(self):
         response = self.client.post(
             reverse('notes'),
             data=json.dumps(self.valid_payload),
@@ -45,7 +45,7 @@ class CreateNewNoteTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_invalid_note(self):
+    def test_create_note_with_invalid_payload(self):
         response = self.client.post(
             reverse('notes'),
             data=json.dumps(self.invalid_payload),
@@ -59,7 +59,7 @@ class GetSingleNoteTest(APITestCase):
         self.user = User.objects.create(username='test', password='1234', email='test@localhost')
         self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
 
-    def test_get_valid_note(self):
+    def test_get_note_with_valid_pk(self):
         response = self.client.get(
             reverse('notes_item', kwargs={'pk': self.note.pk})
         )
@@ -68,8 +68,40 @@ class GetSingleNoteTest(APITestCase):
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_invalid_note(self):
+    def test_get_note_with_invalid_pk(self):
         response = self.client.get(
             reverse('notes_item', kwargs={'pk': 10})
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class UpdateNoteTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
+        self.valid_payload = {
+            'title': 'test42',
+            'content': 'testcontent42',
+            'user': self.user.id
+        }
+        self.invalid_payload = {
+            'title': '',
+            'content': 'testcontent43',
+            'user': self.user.id
+        }
+
+    def test_update_note_with_valid_payload(self):
+        response = self.client.put(
+            reverse('notes_item', kwargs={'pk': self.note.pk}),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_note_with_invalid_payload(self):
+        response = self.client.put(
+            reverse('notes_item', kwargs={'pk': self.note.pk}),
+            data=json.dumps(self.invalid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
