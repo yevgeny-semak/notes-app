@@ -37,7 +37,7 @@ class CreateNewNoteTest(APITestCase):
             'user': self.user.id
         }
 
-    def test_create_valid_note(self):
+    def test_valid_create_note(self):
         response = self.client.post(
             reverse('notes'),
             data=json.dumps(self.valid_payload),
@@ -45,7 +45,7 @@ class CreateNewNoteTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_invalid_note(self):
+    def test_invalid_create_note(self):
         response = self.client.post(
             reverse('notes'),
             data=json.dumps(self.invalid_payload),
@@ -59,7 +59,7 @@ class GetSingleNoteTest(APITestCase):
         self.user = User.objects.create(username='test', password='1234', email='test@localhost')
         self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
 
-    def test_get_valid_note(self):
+    def test_valid_get_note(self):
         response = self.client.get(
             reverse('notes_item', kwargs={'pk': self.note.pk})
         )
@@ -68,8 +68,26 @@ class GetSingleNoteTest(APITestCase):
         self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_invalid_note(self):
+    def test_invalid_get_note(self):
         response = self.client.get(
             reverse('notes_item', kwargs={'pk': 10})
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DeleteSingleNoteTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
+
+    def test_valid_delete_note(self):
+        response = self.client.delete(
+            reverse('notes_item', kwargs={'pk': self.note.pk}),
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_invalid_delete_note(self):
+        response = self.client.delete(
+            reverse('notes_item', kwargs={'pk': 10}),
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
