@@ -35,12 +35,21 @@ class NotesItemView(APIView):
         serializer = NoteSerializer(note)
         return Response(serializer.data)
 
+    def delete(self, request, pk):
+        try:
+            note = Note.objects.get(pk=pk)
+        except Note.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+          
+        note.delete()
+        return Response(status=status.HTTP_200_OK)
+      
     def put(self, request, pk):
         try:
             note = Note.objects.get(pk=pk)
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
+          
         serializer = NoteSerializer(note, data=request.data)
         if serializer.is_valid():
             serializer.save()
