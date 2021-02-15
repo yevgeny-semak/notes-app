@@ -6,9 +6,10 @@ from notes.models import Note, User
 
 class NoteAdmin(admin.ModelAdmin):
     model = Note
-    list_display = ('id', 'title', 'created_at', 'updated_at',)
+    list_display = ('id', 'title', 'created_at', 'updated_at', 'user')
     list_display_links = ('title',)
     search_fields = ('title',)
+
 
 class UserAdmin(admin.ModelAdmin):
     model = User
