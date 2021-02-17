@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from notes.models import Note, User
+from notes.models import Note, CustomUser
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=CustomUser.objects.all())
 
     class Meta:
         model = Note
@@ -13,5 +13,5 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
