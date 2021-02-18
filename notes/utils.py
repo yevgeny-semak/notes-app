@@ -1,14 +1,15 @@
 import requests
+import os
 
 
 def get_bacon_ipsum_content():
-    url = "https://baconator-bacon-ipsum.p.rapidapi.com/"
+    url = os.getenv('BACON_URL')
 
     querystring = {'type': 'all-meat', 'paras': '1', 'start-with-lorem': '1', 'format': 'json'}
 
     headers = {
-        'x-rapidapi-key': "6121edef27msh607ef4e68085a20p1db0c3jsnba630fd6ddb4",
-        'x-rapidapi-host': "baconator-bacon-ipsum.p.rapidapi.com"
+        'x-rapidapi-key': os.getenv('BACON_KEY'),
+        'x-rapidapi-host': os.getenv('BACON_HOST')
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
