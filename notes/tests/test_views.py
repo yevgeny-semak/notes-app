@@ -4,13 +4,13 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
-from notes.models import Note, User
+from notes.models import Note, CustomUser
 from notes.serializers import NoteSerializer
 
 
 class GetAllNotesTest(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.user = CustomUser.objects.create(username='test', password='1234', email='test@localhost')
         Note.objects.create(title='test1', content='testcontent1', user=self.user)
         Note.objects.create(title='test2', content='testcontent2', user=self.user)
         Note.objects.create(title='test2', content='testcontent3', user=self.user)
@@ -25,7 +25,7 @@ class GetAllNotesTest(APITestCase):
 
 class CreateNewNoteTest(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.user = CustomUser.objects.create(username='test', password='1234', email='test@localhost')
         self.valid_payload = {
             'title': 'test1',
             'content': 'testcontent1',
@@ -56,7 +56,7 @@ class CreateNewNoteTest(APITestCase):
 
 class GetSingleNoteTest(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.user = CustomUser.objects.create(username='test', password='1234', email='test@localhost')
         self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
 
     def test_get_note_with_valid_pk(self):
@@ -77,7 +77,7 @@ class GetSingleNoteTest(APITestCase):
 
 class UpdateNoteTest(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.user = CustomUser.objects.create(username='test', password='1234', email='test@localhost')
         self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
         self.valid_payload = {
             'title': 'test42',
@@ -109,7 +109,7 @@ class UpdateNoteTest(APITestCase):
 
 class DeleteSingleNoteTest(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(username='test', password='1234', email='test@localhost')
+        self.user = CustomUser.objects.create(username='test', password='1234', email='test@localhost')
         self.note = Note.objects.create(title='test1', content='testcontent1', user=self.user)
 
     def test_delete_note_with_valid_pk(self):
