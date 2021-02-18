@@ -1,15 +1,69 @@
+from django.contrib.auth import get_user_model, logout
+from django.core.exceptions import ImproperlyConfigured
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework import status
 
+from notes import serializers
 from notes.models import Note, CustomUser
-from notes.serializers import NoteSerializer
-from notes.utils import get_bacon_ipsum_content
+from notes.utils import get_bacon_ipsum_content, get_and_authenticate_user, create_user_account
+
+
+User = get_user_model()
+
+
+class AuthViewSet(viewsets.GenericViewSet):
+    permission_classes = [AllowAny,]
+    serializer_class = serializers.EmptySerializer
+    serializer_classes = {
+        'login': serializers.UserLoginSerializer,
+        'register': serializers.UserRegisterSerializer
+    }
+
+    @action(methods=['POST', ], detail=False)
+    def login(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_and_authenticate_user(**serializer.validated_data)
+        data = serializers.AuthUserSerializer(user).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST', ], detail=False)
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = create_user_account(**serializer.validated_data)
+        data = serializers.AuthUserSerializer(user).data
+        return Response(data=data, status=status.HTTP_201_CREATED)
+
+    @action(methods=['POST', ], detail=False)
+    def logout(self, request):
+        logout(request)
+        data = {'success': 'Successfully logged out'}
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST', ], detail=False, permission_classes=[IsAuthenticated, ])
+    def password_change(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        request.user.set_password(serializer.validated_data['new_password'])
+        request.user.save()
+        return Response(status=status.HTTP_200_OK)
+
+    def get_serializer_class(self):
+        if not isinstance(self.serializer_classes, dict):
+            raise ImproperlyConfigured('serializer_classes should be a dict mapping.')
+        if self.action in self.serializer_classes.keys():
+            return self.serializer_classes[self.action]
+        return super().get_serializer_class()
+
 
 class NotesView(APIView):
     def get(self, request):
         notes = Note.objects.all()
-        serializer = NoteSerializer(notes, many=True)
+        serializer = serializers.NoteSerializer(notes, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -18,7 +72,7 @@ class NotesView(APIView):
             'content': request.data.get('content'),
             'user': request.data.get('user'),
         }
-        serializer = NoteSerializer(data=data)
+        serializer = serializers.NoteSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -32,7 +86,7 @@ class NotesItemView(APIView):
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = NoteSerializer(note)
+        serializer = serializers.NoteSerializer(note)
         return Response(serializer.data)
 
     def put(self, request, pk):
@@ -41,7 +95,7 @@ class NotesItemView(APIView):
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = NoteSerializer(note, data=request.data)
+        serializer = serializers.NoteSerializer(note, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
