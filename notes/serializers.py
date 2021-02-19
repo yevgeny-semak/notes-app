@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model, password_validation
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from notes.models import Note, CustomUser
+from notes.models import Note
 from notes.managers import CustomUserManager
 
 
@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(many=False, queryset=CustomUser.objects.all())
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
 
     class Meta:
         model = Note
@@ -20,13 +20,13 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = '__all__'
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('id', 'email', 'password', 'username')
 
     def validate_email(self, value):
@@ -45,6 +45,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('This username is already taken.')
         return value
 
+
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=300, required=True)
     password = serializers.CharField(required=True, write_only=True)
@@ -54,12 +55,15 @@ class AuthUserSerializer(serializers.ModelSerializer):
     auth_token = serializers.SerializerMethodField()
 
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('id', 'email', 'username', 'is_active', 'is_staff', 'auth_token')
         read_only_fields = ('id', 'is_active', 'is_staff', 'auth_token')
 
     def get_auth_token(self, user_obj):
-        token = Token.objects.create(user=user_obj)
+        try:
+            token = Token.objects.get(user=user_obj)
+        except Token.DoesNotExist:
+            token = Token.objects.create(user=user_obj)
         return token.key
 
 

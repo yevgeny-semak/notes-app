@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 
 from notes import serializers
@@ -15,11 +15,12 @@ User = get_user_model()
 
 
 class AuthViewSet(viewsets.GenericViewSet):
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, ]
     serializer_class = serializers.EmptySerializer
     serializer_classes = {
         'login': serializers.UserLoginSerializer,
-        'register': serializers.UserRegisterSerializer
+        'register': serializers.UserRegisterSerializer,
+        'password_change': serializers.PasswordChangeSerializer
     }
 
     @action(methods=['POST', ], detail=False)
@@ -50,7 +51,8 @@ class AuthViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
-        return Response(status=status.HTTP_200_OK)
+        data = {'success': 'Password has been successfully changed'}
+        return Response(data=data, status=status.HTTP_200_OK)
 
     def get_serializer_class(self):
         if not isinstance(self.serializer_classes, dict):
@@ -61,8 +63,9 @@ class AuthViewSet(viewsets.GenericViewSet):
 
 
 class NotesView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     def get(self, request):
-        notes = Note.objects.all()
+        notes = Note.objects.filter(user=request.user.id)
         serializer = serializers.NoteSerializer(notes, many=True)
         return Response(serializer.data)
 
@@ -70,7 +73,7 @@ class NotesView(APIView):
         data = {
             'title': request.data.get('title'),
             'content': request.data.get('content'),
-            'user': request.data.get('user'),
+            'user': request.user.id,
         }
         serializer = serializers.NoteSerializer(data=data)
         if serializer.is_valid():
@@ -80,9 +83,10 @@ class NotesView(APIView):
 
 
 class NotesItemView(APIView):
+    permission_classes = [IsAuthenticated, ]
     def get(self, request, pk):
         try:
-            note = Note.objects.get(pk=pk)
+            note = Note.objects.get(pk=pk, user=request.user.id)
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -91,10 +95,11 @@ class NotesItemView(APIView):
 
     def put(self, request, pk):
         try:
-            note = Note.objects.get(pk=pk)
+            note = Note.objects.get(pk=pk, user=request.user.id)
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+        request.data['user'] = request.user.id
         serializer = serializers.NoteSerializer(note, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -103,7 +108,7 @@ class NotesItemView(APIView):
 
     def delete(self, request, pk):
         try:
-            note = Note.objects.get(pk=pk)
+            note = Note.objects.get(pk=pk, user=request.user.id)
         except Note.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
