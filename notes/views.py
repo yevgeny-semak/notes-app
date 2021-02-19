@@ -7,8 +7,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework.views import APIView
 
 from notes import serializers
-from notes.models import Note, CustomUser
-from notes.utils import get_bacon_ipsum_content, get_and_authenticate_user, create_user_account
+from notes.models import Note
+from notes.utils import get_bacon_ipsum_content, authenticate_user, create_user_account
 
 
 User = get_user_model()
@@ -27,7 +27,9 @@ class AuthViewSet(viewsets.GenericViewSet):
     def login(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = get_and_authenticate_user(**serializer.validated_data)
+
+        user = authenticate_user(**serializer.validated_data)
+
         data = serializers.AuthUserSerializer(user).data
         return Response(data=data, status=status.HTTP_200_OK)
 
@@ -35,13 +37,16 @@ class AuthViewSet(viewsets.GenericViewSet):
     def register(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         user = create_user_account(**serializer.validated_data)
+
         data = serializers.AuthUserSerializer(user).data
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(methods=['POST', ], detail=False)
     def logout(self, request):
         logout(request)
+
         data = {'success': 'Successfully logged out'}
         return Response(data=data, status=status.HTTP_200_OK)
 
@@ -49,8 +54,10 @@ class AuthViewSet(viewsets.GenericViewSet):
     def password_change(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
+
         data = {'success': 'Password has been successfully changed'}
         return Response(data=data, status=status.HTTP_200_OK)
 

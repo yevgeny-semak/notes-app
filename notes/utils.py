@@ -19,7 +19,7 @@ def get_bacon_ipsum_content():
     return response.text[2:-2]
 
 
-def get_and_authenticate_user(email, password):
+def authenticate_user(email, password):
     user = authenticate(username=email, password=password)
     if user is None:
         raise serializers.ValidationError('Invalid username/password. Please try again!')
