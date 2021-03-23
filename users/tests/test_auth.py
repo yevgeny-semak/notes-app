@@ -13,7 +13,7 @@ class LoginTest(APITestCase):
 
     def test_login_with_valid_payload(self):
         response = self.client.post(
-            reverse('auth-login'),
+            reverse('users-login'),
             data=json.dumps({'email': 'test@localhost', 'password': '1234'}),
             content_type='application/json'
         )
@@ -21,7 +21,7 @@ class LoginTest(APITestCase):
 
     def test_login_with_invalid_email(self):
         response = self.client.post(
-            reverse('auth-login'),
+            reverse('users-login'),
             data=json.dumps({'email': 'test1@localhost', 'password': '4242'}),
             content_type='application/json'
         )
@@ -29,7 +29,7 @@ class LoginTest(APITestCase):
 
     def test_login_with_invalid_password(self):
         response = self.client.post(
-            reverse('auth-login'),
+            reverse('users-login'),
             data=json.dumps({'email': 'test@localhost', 'password': '4242'}),
             content_type='application/json'
         )
@@ -43,7 +43,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_valid_payload(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test1@localhost', 'password': 'test4321', 'username': 'test1'}),
             content_type='application/json'
         )
@@ -51,7 +51,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_invalid_email(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test@localhost', 'password': 'test4321', 'username': 'test1'}),
             content_type='application/json'
         )
@@ -59,7 +59,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_invalid_password(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test@localhost', 'password': 'test1234', 'username': 'test1'}),
             content_type='application/json'
         )
@@ -67,7 +67,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_invalid_username(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test1@localhost', 'password': 'test1234', 'username': 'test'}),
             content_type='application/json'
         )
@@ -75,7 +75,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_empty_email(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': '', 'password': 'test4321', 'username': 'test1'}),
             content_type='application/json'
         )
@@ -83,7 +83,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_empty_password(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test@localhost', 'password': '', 'username': 'test1'}),
             content_type='application/json'
         )
@@ -91,7 +91,7 @@ class RegisterTest(APITestCase):
 
     def test_register_with_empty_username(self):
         response = self.client.post(
-            reverse('auth-register'),
+            reverse('users-register'),
             data=json.dumps({'email': 'test1@localhost', 'password': 'test1234', 'username': ''}),
             content_type='application/json'
         )
