@@ -4,7 +4,6 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from users.models import CustomUser
-from users.managers import CustomUserManager
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -18,60 +17,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = '__all__'
-
-
-class UserRegisterSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'email', 'password', 'username')
+        extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_email(self, value):
-        user = CustomUser.objects.filter(email=value)
-        if user:
-            raise serializers.ValidationError('This email is already taken.')
-        return CustomUserManager.normalize_email(value)
-
-    def validate_password(self, value):
+    @staticmethod
+    def validate_password(value):
         password_validation.validate_password(value)
         return value
 
-    def validate_username(self, value):
-        user = CustomUser.objects.filter(username=value)
-        if user:
-            raise serializers.ValidationError('This username is already taken.')
-        return value
-
-
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.CharField(max_length=300, required=True)
-    password = serializers.CharField(required=True, write_only=True)
-
-
-class AuthUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CustomUser
-        fields = ('id', 'email', 'username', 'is_active')
-        read_only_fields = ('id', 'is_active', 'is_staff')
-
-
-class PasswordChangeSerializer(serializers.Serializer):
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_current_password(self, value):
-        if not self.context['request'].user.check_password(value):
-            raise serializers.ValidationError('Current password does not match')
-        return value
-
-    def validate_new_password(self, value):
-        password_validation.validate_password(value)
-        return value
-
-
-class EmptySerializer(serializers.Serializer):
-    pass
+    def create(self, validated_data):
+        user = self.Meta.model(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
