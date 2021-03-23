@@ -8,13 +8,15 @@ from users import serializers
 
 
 class TokenObtainPairWithUserInfoView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
     serializer_class = serializers.CustomTokenObtainPairSerializer
 
 
 class CustomUserRegisterView(APIView):
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         serializer = serializers.CustomUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -22,3 +24,5 @@ class CustomUserRegisterView(APIView):
         if user:
             data = serializer.data
             return Response(data=data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
