@@ -6,15 +6,17 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from users.models import CustomUser
 from users.managers import CustomUserManager
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super(CustomTokenObtainPairSerializer, cls).get_token(user)
 
-        token['username'] = user.username
         token['email'] = user.email
+        token['username'] = user.username
+
         return token
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

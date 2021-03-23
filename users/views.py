@@ -4,10 +4,17 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from users import serializers
 from users.utils import authenticate_user, create_user_account
 
 User = get_user_model()
+
+
+class TokenObtainPairWithUserInfoView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.CustomTokenObtainPairSerializer
 
 
 class AuthViewSet(viewsets.GenericViewSet):
