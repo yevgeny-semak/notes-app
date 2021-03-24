@@ -14,7 +14,7 @@ class NotesView(APIView):
     def get(self, request):
         notes = Note.objects.filter(user=request.user.id)
         serializer = serializers.NoteSerializer(notes, many=True)
-        return Response(serializer.data)
+        return Response({'notes': serializer.data})
 
     def post(self, request):
         data = {
@@ -25,7 +25,7 @@ class NotesView(APIView):
         serializer = serializers.NoteSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'note': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -39,7 +39,7 @@ class NotesItemView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.NoteSerializer(note)
-        return Response(serializer.data)
+        return Response({'note': serializer.data})
 
     def put(self, request, pk):
         try:
@@ -51,7 +51,7 @@ class NotesItemView(APIView):
         serializer = serializers.NoteSerializer(note, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'note': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
