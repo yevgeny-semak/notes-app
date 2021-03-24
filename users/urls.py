@@ -5,6 +5,6 @@ from users.views import TokenObtainPairWithUserInfoView, CustomUserRegisterView
 
 urlpatterns = [
     path('users/register/', CustomUserRegisterView.as_view(), name="user_register"),
-    path('token/obtain/', TokenObtainPairWithUserInfoView.as_view(), name='token_create'),
+    path('token/obtain/', TokenObtainPairWithUserInfoView.as_view(), name='token_obtain'),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh')
 ]

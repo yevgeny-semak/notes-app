@@ -9,7 +9,7 @@ from notes.utils import get_bacon_ipsum_content
 
 
 class NotesView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticated, ]
 
     def get(self, request):
         notes = Note.objects.filter(user=request.user.id)
