@@ -121,3 +121,30 @@ class RefreshTokenTest(APITestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class LogoutTest(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(email='test@localhost', password='1234', username='test')
+        self.token_refresh = self.client.post(
+            reverse('token_obtain'),
+            data=json.dumps({'email': 'test@localhost', 'password': '1234'}),
+            content_type='application/json'
+        ).data.pop('refresh')
+
+    def test_logout_with_valid_payload(self):
+        response = self.client.post(
+            reverse('user_logout'),
+            data=json.dumps({'refresh': self.token_refresh}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_logout_with_invalid_access_token(self):
+        response = self.client.post(
+            reverse('user_logout'),
+            data=json.dumps({'refresh': 'random_value'}),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
