@@ -14,7 +14,7 @@ class NotesView(APIView):
     def get(self, request):
         notes = Note.objects.filter(user=request.user.id)
         serializer = serializers.NoteSerializer(notes, many=True)
-        return Response({'notes': serializer.data})
+        return Response({'notes': serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         data = {
@@ -39,7 +39,7 @@ class NotesItemView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.NoteSerializer(note)
-        return Response({'note': serializer.data})
+        return Response({'note': serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         try:

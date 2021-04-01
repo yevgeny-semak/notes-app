@@ -1,6 +1,8 @@
 from django.contrib.auth import password_validation
 
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.models import CustomUser
 
@@ -21,3 +23,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class CustomTokenObtainSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        data = super().get_token(user)
+        data['email'] = user.email
+        data['username'] = user.username
+        return data

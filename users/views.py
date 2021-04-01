@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenViewBase
 
 from users import serializers
 
@@ -20,6 +21,10 @@ class RegisterUserView(APIView):
             return Response({'user': serializer.data}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginUserView(TokenViewBase):
+    serializer_class = serializers.CustomTokenObtainSerializer
 
 
 class LogoutUserView(APIView):
