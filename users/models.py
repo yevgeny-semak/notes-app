@@ -22,5 +22,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     class Meta:
+        db_table = 'users_custom_user'
         verbose_name = 'User'
         verbose_name_plural = 'Users'

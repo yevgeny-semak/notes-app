@@ -4,7 +4,7 @@ from users.models import CustomUser
 
 
 class Note(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=50, blank=True)
     content = models.TextField()
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
@@ -14,6 +14,7 @@ class Note(models.Model):
         return self.title
 
     class Meta:
+        db_table='notes_note'
         verbose_name = 'Note'
         verbose_name_plural = 'Notes'
         ordering = ['-created_at', 'title']
