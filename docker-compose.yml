@@ -21,7 +21,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=localhost
       - POSTGRES_DB=notes_app_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

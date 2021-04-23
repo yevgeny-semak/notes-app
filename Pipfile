@@ -10,6 +10,7 @@ djangorestframework = "*"
 requests = "*"
 python-dotenv = "*"
 django-cors-headers = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 
