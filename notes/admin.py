@@ -5,10 +5,10 @@ from notes.models import Note
 
 class NoteAdmin(admin.ModelAdmin):
     model = Note
-    list_display = ('id', 'title', 'created_at', 'updated_at', 'user')
-    list_display_links = ('title',)
+    list_display = ('id', 'title', 'content', 'updated_at', 'user', 'is_pinned', 'is_archived')
+    list_display_links = ('title', 'content',)
     list_filter = ('user',)
-    readonly_fields = ('created_at', 'updated_at',)
+    readonly_fields = ('created_at', 'updated_at', 'sort_order')
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
