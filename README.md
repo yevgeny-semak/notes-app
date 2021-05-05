@@ -10,8 +10,8 @@ To run this project
 `pipenv shell`
 4. create .env file in project directory
 `touch .env`
-6. fill in all environment variables in .env file according to .env.template file.\
-8. make sure you have postgresql database set and running\
+6. fill in all environment variables in .env file according to .env.template file.
+8. make sure you have postgresql database set and running
 9. run migrations to database\
 `python3 manage.py makemigrations`\
 `python3 manage.py migrate`
